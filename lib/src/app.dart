@@ -18,3 +18,5 @@ class _AppState extends State<App> {
     );
   }
 }
+
+//flutter pub run build_runner build

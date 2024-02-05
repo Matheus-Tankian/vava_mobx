@@ -1,52 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:mobx/mobx.dart';
 import 'package:vava_mobx/main.dart';
 import 'package:vava_mobx/src/models/agents_model.dart';
 import 'package:vava_mobx/src/repository/agents/agents.dart';
 import 'package:vava_mobx/src/widgets/snackbar_widget.dart';
 
+part 'home_viewmodel.g.dart';
 
-class HomeViewModel extends ChangeNotifier {
+class HomeViewlModel = HomeViewlModelBase with _$HomeViewlModel;
+
+abstract class HomeViewlModelBase with Store {
   final AgentReposity _agentReposity;
 
-  bool _disposed = false;
-
-  int _indexScreen = 0;
-  int get indexScreen => _indexScreen;
-
-  List<AgentsModel> _agentensList = [];
-  List<AgentsModel> get agentensList => _agentensList;
-
-  bool _loadPage = false;
-  bool get loadPage => _loadPage;
-
-  HomeViewModel(this._agentReposity) {
+  HomeViewlModelBase(this._agentReposity) {
     loadFunctions();
   }
 
+  @observable
+  int indexScreen = 0;
+
+  @observable
+  List<AgentsModel> agentensList = [];
+
+  @observable
+  bool loadPage = false;
+
+  @action
   Future<void> loadFunctions() async {
     await getAgentsList();
   }
 
-  changeLoadPage(bool value) {
-    _loadPage = value;
-    notifyListeners();
+  @action
+  void changeLoadPage(bool value) {
+    loadPage = value;
   }
 
-  changeAgentensList(List<AgentsModel> value) {
-    _agentensList = value;
-    notifyListeners();
+  @action
+  void changeAgentensList(List<AgentsModel> value) {
+    agentensList = value;
   }
 
-  changeIndexScreen(int value) {
-    _indexScreen = value;
-    notifyListeners();
+  @action
+  void changeIndexScreen(int value) {
+    indexScreen = value;
   }
 
   Future<void> getAgentsList() async {
     try {
       changeLoadPage(true);
       final result = await _agentReposity.getAllAgents();
-      await changeAgentensList(result);
+      changeAgentensList(result);
       changeLoadPage(false);
     } catch (e) {
       changeLoadPage(false);
@@ -61,18 +64,5 @@ class HomeViewModel extends ChangeNotifier {
       backgroundColor: erro ? Colors.red : Colors.green,
       duration: const Duration(seconds: 2),
     );
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  @override
-  void notifyListeners() {
-    if (!_disposed) {
-      super.notifyListeners();
-    }
   }
 }
